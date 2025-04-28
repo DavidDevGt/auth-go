@@ -27,7 +27,7 @@ Autenticación y gestión de sesiones multi-dispositivo para aplicaciones móvil
 ## Configuración
 1. **Clona el repositorio y entra al directorio:**
    ```bash
-   git clone <repo_url>
+   git clone https://github.com/DavidDevGt/auth-go
    cd auth-go
    ```
 
@@ -35,12 +35,12 @@ Autenticación y gestión de sesiones multi-dispositivo para aplicaciones móvil
    - Copia `.env.example` a `.env` y ajusta los valores:
      ```env
      PORT=8080
-     DATABASE_URL=root:password@tcp(localhost:3306)/test_db?parseTime=true&loc=Local
-     ACCESS_TOKEN_SECRET=pon_aqui_un_secret_largo_y_unico_para_access
-     REFRESH_TOKEN_SECRET=pon_aqui_otro_secret_largo_y_unico_para_refresh
-     ACCESS_TOKEN_EXPIRY=15m
-     REFRESH_TOKEN_EXPIRY=720h
-     MAX_SESSIONS_PER_USER=5
+     DATABASE_URL=admin:password@tcp(localhost:3306)/test_db?parseTime=true&loc=Local
+     ACCESS_TOKEN_SECRET=secretthings_ok
+     REFRESH_TOKEN_SECRET=secretthings_ok
+     ACCESS_TOKEN_EXPIRY=30m
+     REFRESH_TOKEN_EXPIRY=960h
+     MAX_SESSIONS_PER_USER=2
      ```
 
 3. **Prepara la base de datos:**
