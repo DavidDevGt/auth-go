@@ -1,0 +1,35 @@
+# Binaries
+/bin/
+/bin/*
+/out/
+/out/*
+
+# Go workspace files
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+
+# Dependency directories
+/vendor/
+
+# Go modules
+/go.sum
+/go.mod
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Coverage files
+*.cov

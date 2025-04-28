@@ -1,0 +1,231 @@
+{
+  "info": {
+    "name": "Go Auth API QA Suite",
+    "_postman_id": "f1e7e7c2-1234-4bcd-9f12-abcdef123456",
+    "description": "Colección QA para testear todos los flujos y casos de la API de autenticación en Go. Configurada para ejecución secuencial y variables correctamente asignadas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8080" },
+    { "key": "username", "value": "davidtest" },
+    { "key": "password", "value": "holaPass23**" },
+    { "key": "access_token", "value": "" },
+    { "key": "refresh_token", "value": "" },
+    { "key": "logout_refresh_token", "value": "" },
+    { "key": "revoke_refresh_token", "value": "" },
+    { "key": "invalid_refresh_token", "value": "invalidtoken123" },
+    { "key": "invalid_access_token", "value": "Bearer invalidtoken123" }
+  ],
+  "item": [
+    {
+      "name": "Flujo Secuencial QA",
+      "description": "Todos los pasos en orden correcto para asegurar las variables y el flujo.",
+      "item": [
+        {
+          "name": "Registro exitoso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/register", "host": ["{{base_url}}"], "path": ["api", "register"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{username}}\",\n  \"email\": \"{{username}}@mail.com\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Registro exitoso o usuario ya existe\", function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([201, 400, 409]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login para access y refresh",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{username}}@mail.com\",\n  \"password\": \"{{password}}\",\n  \"device_id\": \"device-qa-1\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Login exitoso\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('access_token');",
+                  "  pm.expect(json).to.have.property('refresh_token');",
+                  "  pm.environment.set('access_token', json.access_token);",
+                  "  pm.environment.set('refresh_token', json.refresh_token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login para logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{username}}@mail.com\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.environment.set('logout_refresh_token', json.refresh_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login para revoke",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{username}}@mail.com\",\n  \"password\": \"{{password}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var json = pm.response.json();",
+                  "pm.environment.set('revoke_refresh_token', json.refresh_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh exitoso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/refresh", "host": ["{{base_url}}"], "path": ["api", "refresh"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\",\n  \"device_id\": \"device-qa-1\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Refresh exitoso\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('access_token');",
+                  "  pm.expect(json).to.have.property('refresh_token');",
+                  "  pm.environment.set('access_token', json.access_token);",
+                  "  pm.environment.set('refresh_token', json.refresh_token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Logout exitoso",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/logout", "host": ["{{base_url}}"], "path": ["api", "logout"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{logout_refresh_token}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Logout exitoso\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Revocación de sesión exitosa",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/revoke-session", "host": ["{{base_url}}"], "path": ["api", "revoke-session"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{revoke_refresh_token}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Revocación de sesión exitosa\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acceso protegido exitoso",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/protected", "host": ["{{base_url}}"], "path": ["api", "protected"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Acceso protegido exitoso\", function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  var json = pm.response.json();",
+                  "  pm.expect(json).to.have.property('user_id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
