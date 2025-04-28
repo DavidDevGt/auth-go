@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"log"
 
 	"auth-go/internal/database"
 	"auth-go/internal/routes"
@@ -19,5 +20,7 @@ func main() {
 
 	routes.RegisterRoutes(app, db, tokenManager, authService)
 
-	app.Listen(":8080")
+	if err := app.Listen(":8080"); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
