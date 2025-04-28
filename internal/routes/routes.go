@@ -38,6 +38,15 @@ type RevokeSessionRequest struct {
 
 func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions, authService services.AuthService) {
 	// --- Registro de usuario ---
+	// @Summary Registra un nuevo usuario
+	// @Description Crea un usuario con nombre, email y contraseña
+	// @Tags auth
+	// @Accept json
+	// @Produce json
+	// @Param body body RegisterRequest true "Datos de registro"
+	// @Success 201 {object} map[string]string
+	// @Failure 400 {object} map[string]string
+	// @Router /api/register [post]
 	app.Post("/api/register", func(c *fiber.Ctx) error {
 		var req RegisterRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -56,6 +65,16 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 	})
 
 	// --- Login ---
+	// @Summary Login de usuario
+	// @Description Obtiene tokens de acceso y refresh al validar credenciales
+	// @Tags auth
+	// @Accept json
+	// @Produce json
+	// @Param body body LoginRequest true "Credenciales"
+	// @Success 200 {object} utils.Pair
+	// @Failure 400 {object} map[string]string
+	// @Failure 401 {object} map[string]string
+	// @Router /api/login [post]
 	app.Post("/api/login", func(c *fiber.Ctx) error {
 		var req LoginRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -71,6 +90,16 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 	})
 
 	// --- Refresh Token ---
+	// @Summary Refresca tokens
+	// @Description Genera nuevos tokens usando un refresh token válido
+	// @Tags auth
+	// @Accept json
+	// @Produce json
+	// @Param body body RefreshRequest true "Refresh token y device ID"
+	// @Success 200 {object} utils.Pair
+	// @Failure 400 {object} map[string]string
+	// @Failure 401 {object} map[string]string
+	// @Router /api/refresh [post]
 	app.Post("/api/refresh", func(c *fiber.Ctx) error {
 		var req RefreshRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -84,6 +113,15 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 	})
 
 	// --- Logout	 ---
+	// @Summary Logout
+	// @Description Revoca un refresh token
+	// @Tags auth
+	// @Accept json
+	// @Produce json
+	// @Param body body LogoutRequest true "Refresh token"
+	// @Success 200 {object} map[string]string
+	// @Failure 400 {object} map[string]string
+	// @Router /api/logout [post]
 	app.Post("/api/logout", func(c *fiber.Ctx) error {
 		var req LogoutRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -96,6 +134,15 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 	})
 
 	// --- Revocar una sesión específica ---
+	// @Summary Revoca sesión específica
+	// @Description Revoca un refresh token específico
+	// @Tags auth
+	// @Accept json
+	// @Produce json
+	// @Param body body RevokeSessionRequest true "Refresh token"
+	// @Success 200 {object} map[string]string
+	// @Failure 400 {object} map[string]string
+	// @Router /api/revoke-session [post]
 	app.Post("/api/revoke-session", func(c *fiber.Ctx) error {
 		var req RevokeSessionRequest
 		if err := c.BodyParser(&req); err != nil {
@@ -108,6 +155,13 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 	})
 
 	// --- Ruta protegida de ejemplo ---
+	// @Summary Ruta protegida de ejemplo
+	// @Description Endpoint de prueba que requiere autenticación
+	// @Tags auth
+	// @Produce json
+	// @Security ApiKeyAuth
+	// @Success 200 {object} map[string]interface{}
+	// @Router /api/protected [get]
 	api := app.Group("/api", middleware.AuthMiddleware(tokenManager))
 	api.Get("/protected", func(c *fiber.Ctx) error {
 		userID := c.Locals("userID")
