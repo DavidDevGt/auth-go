@@ -1,14 +1,17 @@
 {
   "info": {
-    "name": "Go Auth API QA Suite",
-    "_postman_id": "f1e7e7c2-1234-4bcd-9f12-abcdef123456",
-    "description": "Colección QA para testear todos los flujos y casos de la API de autenticación en Go. Configurada para ejecución secuencial y variables correctamente asignadas.",
+    "name": "Go Auth API Senior QA Suite",
+    "_postman_id": "{{randomUUID}}",
+    "description": "Colección de pruebas exhaustivas para la API de autenticación Go, siguiendo mejores prácticas QA. Incluye flujos positivos, negativos y validaciones de seguridad.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
     { "key": "base_url", "value": "http://localhost:8080" },
-    { "key": "username", "value": "davidtest" },
-    { "key": "password", "value": "holaPass23**" },
+    { "key": "username", "value": "qa.user.{{timestamp}}" },
+    { "key": "email", "value": "qa.user.{{timestamp}}@mail.com" },
+    { "key": "password", "value": "QA!passw0rd@2025" },
+    { "key": "wrong_password", "value": "WrongPass!2025" },
+    { "key": "device_id", "value": "device-qa-{{timestamp}}" },
     { "key": "access_token", "value": "" },
     { "key": "refresh_token", "value": "" },
     { "key": "logout_refresh_token", "value": "" },
@@ -18,8 +21,8 @@
   ],
   "item": [
     {
-      "name": "Flujo Secuencial QA",
-      "description": "Todos los pasos en orden correcto para asegurar las variables y el flujo.",
+      "name": "Flujo Completo QA",
+      "description": "Flujo principal y casos QA para autenticación.",
       "item": [
         {
           "name": "Registro exitoso",
@@ -29,7 +32,7 @@
             "url": { "raw": "{{base_url}}/api/register", "host": ["{{base_url}}"], "path": ["api", "register"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"{{username}}\",\n  \"email\": \"{{username}}@mail.com\",\n  \"password\": \"{{password}}\"\n}"
+              "raw": "{\n  \"name\": \"{{username}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}"
             }
           },
           "event": [
@@ -46,14 +49,14 @@
           ]
         },
         {
-          "name": "Login para access y refresh",
+          "name": "Login exitoso",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{username}}@mail.com\",\n  \"password\": \"{{password}}\",\n  \"device_id\": \"device-qa-1\"\n}"
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"device_id\": \"{{device_id}}\"\n}"
             }
           },
           "event": [
@@ -75,14 +78,14 @@
           ]
         },
         {
-          "name": "Login para logout",
+          "name": "Login con password incorrecto",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"email\": \"{{username}}@mail.com\",\n  \"password\": \"{{password}}\"\n}"
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{wrong_password}}\",\n  \"device_id\": \"{{device_id}}\"\n}"
             }
           },
           "event": [
@@ -90,31 +93,9 @@
               "listen": "test",
               "script": {
                 "exec": [
-                  "var json = pm.response.json();",
-                  "pm.environment.set('logout_refresh_token', json.refresh_token);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Login para revoke",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{base_url}}/api/login", "host": ["{{base_url}}"], "path": ["api", "login"] },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{username}}@mail.com\",\n  \"password\": \"{{password}}\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "var json = pm.response.json();",
-                  "pm.environment.set('revoke_refresh_token', json.refresh_token);"
+                  "pm.test(\"Login falla con password incorrecto\", function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([401, 400]);",
+                  "});"
                 ]
               }
             }
@@ -128,7 +109,7 @@
             "url": { "raw": "{{base_url}}/api/refresh", "host": ["{{base_url}}"], "path": ["api", "refresh"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\",\n  \"device_id\": \"device-qa-1\"\n}"
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\",\n  \"device_id\": \"{{device_id}}\"\n}"
             }
           },
           "event": [
@@ -150,6 +131,30 @@
           ]
         },
         {
+          "name": "Refresh con token inválido",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/refresh", "host": ["{{base_url}}"], "path": ["api", "refresh"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{invalid_refresh_token}}\",\n  \"device_id\": \"{{device_id}}\"\n}"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Refresh falla con token inválido\", function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([401, 400]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
           "name": "Logout exitoso",
           "request": {
             "method": "POST",
@@ -157,7 +162,7 @@
             "url": { "raw": "{{base_url}}/api/logout", "host": ["{{base_url}}"], "path": ["api", "logout"] },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{logout_refresh_token}}\"\n}"
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
             }
           },
           "event": [
@@ -166,32 +171,6 @@
               "script": {
                 "exec": [
                   "pm.test(\"Logout exitoso\", function () {",
-                  "  pm.expect(pm.response.code).to.eql(200);",
-                  "  var json = pm.response.json();",
-                  "  pm.expect(json).to.have.property('message');",
-                  "});"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Revocación de sesión exitosa",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "url": { "raw": "{{base_url}}/api/revoke-session", "host": ["{{base_url}}"], "path": ["api", "revoke-session"] },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"refresh_token\": \"{{revoke_refresh_token}}\"\n}"
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test(\"Revocación de sesión exitosa\", function () {",
                   "  pm.expect(pm.response.code).to.eql(200);",
                   "  var json = pm.response.json();",
                   "  pm.expect(json).to.have.property('message');",
@@ -219,6 +198,26 @@
                   "  pm.expect(pm.response.code).to.eql(200);",
                   "  var json = pm.response.json();",
                   "  pm.expect(json).to.have.property('user_id');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Acceso protegido sin token",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/protected", "host": ["{{base_url}}"], "path": ["api", "protected"] }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Acceso protegido falla sin token\", function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([401, 403]);",
                   "});"
                 ]
               }

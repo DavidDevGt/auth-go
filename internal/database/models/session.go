@@ -13,7 +13,6 @@ type Session struct {
 	UserAgent    string         `gorm:"size:255;not null" json:"user_agent"`
 	IPAddress    string         `gorm:"size:45;not null" json:"ip_address"`
 	DeviceInfo   string         `gorm:"type:json" json:"device_info"`
-	// DeviceID: identificador único del dispositivo (enviado por el frontend)
 	DeviceID     string         `gorm:"size:64;not null;index" json:"device_id"`
 	LastUsedAt   time.Time      `json:"last_used_at"`
 	ExpiresAt    time.Time      `gorm:"index;not null" json:"expires_at"`

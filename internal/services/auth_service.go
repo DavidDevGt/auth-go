@@ -11,8 +11,8 @@ import (
 )
 
 type AuthService interface {
-	Login(email, password, userAgent, ip string) (*utils.Pair, error)
-	Refresh(refreshToken string) (*utils.Pair, error)
+	Login(email, password, userAgent, ip, deviceID string) (*utils.Pair, error)
+	Refresh(refreshToken, deviceID string) (*utils.Pair, error)
 	Logout(refreshToken string) error
 	RevokeSession(refreshToken string) error
 	Register(user models.User) error
@@ -34,7 +34,7 @@ func NewAuthService(db *gorm.DB, users UserService, sessions SessionService, tok
 	}
 }
 
-func (s *authService) Login(email, password, userAgent, ip string) (*utils.Pair, error) {
+func (s *authService) Login(email, password, userAgent, ip, deviceID string) (*utils.Pair, error) {
 	if err := validators.ValidateLogin(email, password); err != nil {
 		return nil, err
 	}
@@ -54,6 +54,7 @@ func (s *authService) Login(email, password, userAgent, ip string) (*utils.Pair,
 		UserAgent:    userAgent,
 		IPAddress:    ip,
 		RefreshToken: pair.RefreshToken,
+		DeviceID:     deviceID,
 		DeviceInfo:   "{}", // <-- JSON válido vacío
 		LastUsedAt:   time.Now(),
 		ExpiresAt:    time.Now().Add(30 * 24 * time.Hour),
@@ -64,7 +65,7 @@ func (s *authService) Login(email, password, userAgent, ip string) (*utils.Pair,
 	return pair, nil
 }
 
-func (s *authService) Refresh(refreshToken string) (*utils.Pair, error) {
+func (s *authService) Refresh(refreshToken, deviceID string) (*utils.Pair, error) {
 	if err := validators.ValidateRefreshToken(refreshToken); err != nil {
 		return nil, err
 	}
@@ -86,6 +87,7 @@ func (s *authService) Refresh(refreshToken string) (*utils.Pair, error) {
 		UserAgent:    "",
 		IPAddress:    "",
 		RefreshToken: pair.RefreshToken,
+		DeviceID:     deviceID,
 		DeviceInfo:   "{}", // <-- JSON válido vacío
 		LastUsedAt:   time.Now(),
 		ExpiresAt:    time.Now().Add(30 * 24 * time.Hour),

@@ -16,6 +16,7 @@ type SessionService interface {
 	RevokeByRefreshToken(token string) error
 	RevokeAllByUserID(userID string) error
 	ListByUserID(userID string) ([]models.Session, error)
+	CreateSession(userID string, refreshToken string, deviceID string, expiresAt time.Time) (*models.Session, error)
 }
 
 type sessionService struct {

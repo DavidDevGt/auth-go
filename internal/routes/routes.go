@@ -20,10 +20,12 @@ type RegisterRequest struct {
 type LoginRequest struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	DeviceID string `json:"device_id"`
 }
 
 type RefreshRequest struct {
 	RefreshToken string `json:"refresh_token"`
+	DeviceID     string `json:"device_id"`
 }
 
 type LogoutRequest struct {
@@ -61,7 +63,7 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 		}
 		userAgent := c.Get("User-Agent")
 		ip := c.IP()
-		pair, err := authService.Login(req.Email, req.Password, userAgent, ip)
+		pair, err := authService.Login(req.Email, req.Password, userAgent, ip, req.DeviceID)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 		}
@@ -74,14 +76,14 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 		if err := c.BodyParser(&req); err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request"})
 		}
-		pair, err := authService.Refresh(req.RefreshToken)
+		pair, err := authService.Refresh(req.RefreshToken, req.DeviceID)
 		if err != nil {
 			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": err.Error()})
 		}
 		return c.JSON(pair)
 	})
 
-	// --- Logout (revocar sesión actual) ---
+	// --- Logout	 ---
 	app.Post("/api/logout", func(c *fiber.Ctx) error {
 		var req LogoutRequest
 		if err := c.BodyParser(&req); err != nil {
