@@ -24,6 +24,14 @@ Autenticación y gestión de sesiones multi-dispositivo para aplicaciones móvil
 
 ---
 
+# Crea la base de datos en MySQL
+
+```sql
+CREATE DATABASE IF NOT EXISTS test_db;
+```
+
+---
+
 ## Configuración
 1. **Clona el repositorio y entra al directorio:**
    ```bash
@@ -56,6 +64,16 @@ Autenticación y gestión de sesiones multi-dispositivo para aplicaciones móvil
 ---
 
 ## Endpoints principales
+
+### Liveness
+```http
+GET /healthz
+```
+
+### Readiness
+```http
+GET /readyz
+```
 
 ### Registro
 ```http

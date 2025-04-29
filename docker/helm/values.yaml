@@ -1,0 +1,22 @@
+api:
+  image:
+    repository: auth-go
+    tag: latest
+  replicaCount: 1
+  env:
+    - name: DB_HOST
+      value: mysql
+    - name: DB_USER
+      value: testuser
+    - name: DB_PASS
+      value: testpass
+    - name: DB_NAME
+      value: test_db
+mysql:
+  image:
+    repository: mysql
+    tag: 8.0
+  rootPassword: root
+  database: test_db
+  user: testuser
+  password: testpass

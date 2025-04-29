@@ -1,0 +1,4 @@
+apiVersion: v2
+name: auth-go
+version: 0.1.0
+description: Helm chart for auth-go API and MySQL

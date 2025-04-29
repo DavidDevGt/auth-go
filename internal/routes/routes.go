@@ -154,6 +154,47 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 		return c.JSON(fiber.Map{"message": "Specific session revoked"})
 	})
 
+	// --- Health Check ---
+	// @Summary Health check
+	// @Description Verifica el estado de la aplicación
+	// @Tags health
+	// @Produce json
+	// @Success 200 {object} map[string]interface{}
+	// @Router /healthz [get]
+	app.Get("/healthz", func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
+	})
+
+	// --- Readiness Check ---
+	// @Summary Readiness check
+	// @Description Verifica si el servicio está listo para recibir tráfico
+	// @Tags health
+	// @Produce json
+	// @Success 200 {object} map[string]interface{}
+	// @Router /readyz [get]
+	app.Get("/readyz", func(c *fiber.Ctx) error {
+		sqlDB, err := db.DB()
+		if err != nil {
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
+				"ready":    false,
+				"database": "connection error",
+				"message":  err.Error(),
+			})
+		}
+		if err := sqlDB.Ping(); err != nil {
+			return c.Status(fiber.StatusServiceUnavailable).JSON(fiber.Map{
+				"ready":    false,
+				"database": "unreachable",
+				"message":  err.Error(),
+			})
+		}
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"ready":    true,
+			"database": "ok",
+			"message":  "service is ready",
+		})
+	})
+
 	// --- Ruta protegida de ejemplo ---
 	// @Summary Ruta protegida de ejemplo
 	// @Description Endpoint de prueba que requiere autenticación
@@ -167,4 +208,5 @@ func RegisterRoutes(app *fiber.App, db *gorm.DB, tokenManager utils.TokenActions
 		userID := c.Locals("userID")
 		return c.JSON(fiber.Map{"message": "Ruta protegida!", "user_id": userID})
 	})
+
 }
