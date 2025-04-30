@@ -15,6 +15,12 @@ func main() {
 	app := fiber.New()
 	db := database.GetDB()
 	userService := services.NewUserService(db)
+
+	// If fiber app is not initialized, kill the program
+	if app == nil {
+		log.Fatal("Failed to create Fiber app")
+	}
+
 	sessionService := services.NewSessionService(db)
 	tokenManager, err := utils.NewManager()
 	// Api killed if token manager fails to init
