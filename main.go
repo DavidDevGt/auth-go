@@ -16,7 +16,11 @@ func main() {
 	db := database.GetDB()
 	userService := services.NewUserService(db)
 	sessionService := services.NewSessionService(db)
-	tokenManager, _ := utils.NewManager()
+	tokenManager, err := utils.NewManager()
+	// Api killed if token manager fails to init
+	if err != nil {
+		log.Fatalf("token manager init: %v", err)
+	}
 	authService := services.NewAuthService(db, userService, sessionService, tokenManager)
 
 	routes.RegisterRoutes(app, db, tokenManager, authService)
