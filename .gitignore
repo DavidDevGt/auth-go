@@ -32,4 +32,4 @@
 *.log
 
 # Coverage files
-*.cov
+*.cov/auth-api
