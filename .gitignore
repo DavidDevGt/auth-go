@@ -33,3 +33,4 @@
 
 # Coverage files
 *.cov/auth-api
+deploy-auth-api.sh
