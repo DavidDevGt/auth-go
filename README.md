@@ -128,6 +128,28 @@ Authorization: Bearer <access_token>
 
 ---
 
+## Kubernetes
+
+Los manifiestos de Kubernetes se encuentran en el directorio `k8s/`:
+
+### Despliegue en Kubernetes
+```bash
+# Aplicar ConfigMap
+kubectl apply -f k8s/configmap.yaml
+
+# Aplicar Deployment y Service
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+
+# Verificar el estado
+kubectl get pods -l app=auth-go
+kubectl get svc auth-go
+```
+
+**Nota**: Ajusta los valores en `configmap.yaml` según tu entorno.
+
+---
+
 ## Pruebas QA
 - Incluye una colección Postman profesional (`test-postman.json`) con flujos positivos y negativos, datos dinámicos y validaciones automáticas.
 - **Recomendado:** Ejecutar la suite con delay entre peticiones para evitar sobrecargar el servidor.

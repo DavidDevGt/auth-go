@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-go-config
+data:
+  PORT: "8080"
+  ACCESS_TOKEN_EXPIRY: "30m"
+  REFRESH_TOKEN_EXPIRY: "960h"
+  MAX_SESSIONS_PER_USER: "2"
+  DATABASE_URL: "admin:password@tcp(mysql-service:3306)/test_db?parseTime=true&loc=Local"

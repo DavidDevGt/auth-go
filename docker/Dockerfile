@@ -1,14 +1,21 @@
-# ---- Build Stage ----
-FROM golang:1.21-alpine AS builder
+# ---------- build stage ----------
+FROM --platform=linux/amd64 golang:1.20-alpine AS builder
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -o auth-api ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o auth-api .
 
-# ---- Run Stage ----
-FROM scratch AS final
+# ---------- final stage ----------
+FROM --platform=linux/amd64 alpine:latest
+RUN apk add --no-cache openssl
+
 WORKDIR /app
-COPY --from=builder /app/auth-api ./auth-api
-COPY --from=builder /app/.env.example .env.example
-ENTRYPOINT ["/app/auth-api"]
+COPY --from=builder /app/auth-api .
+COPY docker/entrypoint.sh /entrypoint.sh
+RUN chmod +x /app/auth-api /entrypoint.sh
+
+ENV ACCESS_TOKEN_SECRET "" \
+    REFRESH_TOKEN_SECRET ""
+
+ENTRYPOINT ["/entrypoint.sh"]

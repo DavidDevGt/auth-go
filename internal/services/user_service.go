@@ -1,9 +1,9 @@
 package services
 
 import (
+	"auth-go/internal/database/models"
 	"errors"
 	"gorm.io/gorm"
-	"auth-go/internal/database/models"
 )
 
 type UserService interface {
