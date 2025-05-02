@@ -15,8 +15,6 @@
 # Dependency directories
 /vendor/
 
-# Go modules
-/go.mod
 
 # IDEs and editors
 .idea/
