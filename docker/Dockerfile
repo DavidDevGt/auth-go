@@ -7,7 +7,8 @@ RUN go mod tidy
 RUN CGO_ENABLED=0 go build -o auth-api .
 # ---------- final stage ----------
 FROM --platform=linux/amd64 alpine:latest
-RUN apk add --no-cache openssl
+RUN apk add --no-cache openssl netcat-openbsd
+
 WORKDIR /app
 COPY --from=builder /app/auth-api .
 COPY docker/entrypoint.sh /entrypoint.sh
