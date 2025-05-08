@@ -59,9 +59,17 @@ func (s *authService) Login(email, password, userAgent, ip, deviceID string) (*u
 		LastUsedAt:   time.Now(),
 		ExpiresAt:    time.Now().Add(30 * 24 * time.Hour),
 	}
+
 	if err := s.sessions.Create(session); err != nil {
 		return nil, err
 	}
+
+	timestamp := time.Now()
+	user.LastLoginAt = &timestamp
+	if err := s.db.Save(&user).Error; err != nil {
+		return nil, errors.New("ERROR: not update last login")
+	}
+
 	return pair, nil
 }
 
