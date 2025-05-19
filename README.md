@@ -164,13 +164,6 @@ kubectl get svc auth-go
 
 ---
 
-## Extensión y personalización
-- Puedes agregar campos personalizados al modelo de usuario (`internal/database/models/user.go`).
-- Para notificaciones, MFA o integración con OAuth, extiende los servicios actuales y los modelos.
-- Los servicios y modelos están diseñados para ser testeables de forma fácil.
-
----
-
 ## Estructura del proyecto
 
 ```
